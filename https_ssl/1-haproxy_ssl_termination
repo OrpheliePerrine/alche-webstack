@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Displays DNS information about subdomains for a given domain
+
+# shellcheck disable=SC2086
+
+print_record() {
+    local domain="$1"
+    local subdomain="$2"
+
+    dig "$subdomain.$domain" | awk '
+        /ANSWER SECTION:/ {getline; print $1, $4, $5}
+    ' | awk '{printf "The subdomain %s is a %s record and points to %s\n", "'"$subdomain"'", $2, $3}'
+}
+
+if [ $# -eq 1 ]; then
+    print_record "$1" "www"
+    print_record "$1" "lb-01"
+    print_record "$1" "web-01"
+    print_record "$1" "web-02"
+else
+    print_record "$1" "$2"
+fi
